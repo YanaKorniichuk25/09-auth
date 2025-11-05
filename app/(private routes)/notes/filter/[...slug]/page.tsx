@@ -4,7 +4,7 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import Notes from "./Notes.client";
-import { fetchNotes } from "@/lib/api";
+import { fetchNotes } from "@/lib/api/clientApi";
 import {
   HOME_PAGE,
   OG_IMAGE,
@@ -14,15 +14,14 @@ import {
 import type { Metadata } from "next";
 
 type Props = {
-  params: { slug: string[] };
+  params: Promise<{ slug: string[] }>; // params тепер проміс
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = params;
+  const { slug } = await params; // потрібно чекати params
+
   const tag = slug?.[0] === "All" ? "" : slug?.[0];
-  const title = `${SITE_NAME} | ${
-    tag ? `Notes filtered by ${tag}` : "All notes"
-  }`;
+  const title = `${SITE_NAME} | ${tag ? `Notes filtered by ${tag}` : "All notes"}`;
 
   return {
     title,
@@ -39,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function NotesPage({ params }: Props) {
-  const { slug } = params;
+  const { slug } = await params; // теж await
   const tag = slug?.[0] === "All" ? "" : slug?.[0];
 
   const queryClient = new QueryClient();
