@@ -1,40 +1,43 @@
 "use client";
-
-import { ReactNode, useEffect } from "react";
+import Link from "next/link";
 import { useAuthStore } from "@/lib/store/authStore";
-import { usePathname, useRouter } from "next/navigation";
+import styles from "./AuthNavigation.module.css";
 
-export default function AuthProvider({ children }: { children: ReactNode }) {
-  const { setUser, setIsLoading, isLoading, user } = useAuthStore();
-  const pathname = usePathname();
-  const router = useRouter();
+export const AuthNavigation = () => {
+  const { isAuthenticated, clearIsAuthenticated } = useAuthStore();
 
-  useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const res = await fetch("/api/auth/session");
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data.user);
-        } else {
-          setUser(null);
-          if (pathname.startsWith("/notes")) {
-            router.push("/sign-in");
-          }
-        }
-      } catch {
-        setUser(null);
-        if (pathname.startsWith("/notes")) {
-          router.push("/sign-in");
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    checkSession();
-  }, [setUser, setIsLoading, pathname, router]);
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+    clearIsAuthenticated();
+    window.location.href = "/sign-in";
+  };
 
-  if (isLoading) return <div>Loading...</div>;
-
-  return <>{children}</>;
-}
+  return (
+    <nav className={styles.nav}>
+      <ul className={styles.menu}>
+        {!isAuthenticated ? (
+          <>
+            <li>
+              <Link href="/sign-in">Sign in</Link>
+            </li>
+            <li>
+              <Link href="/sign-up">Sign up</Link>
+            </li>
+          </>
+        ) : (
+          <>
+            <li>
+              <Link href="/profile">Profile</Link>
+            </li>
+            <li>
+              <Link href="/notes">Notes</Link>
+            </li>
+            <li>
+              <button onClick={handleLogout}>Logout</button>
+            </li>
+          </>
+        )}
+      </ul>
+    </nav>
+  );
+};

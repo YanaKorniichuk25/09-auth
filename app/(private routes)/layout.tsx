@@ -1,4 +1,4 @@
-export default function AuthRoutesLayout({
+export default function PrivateRoutesLayout({
   children,
 }: {
   children: React.ReactNode;
