@@ -47,8 +47,11 @@ export const getMe = async (): Promise<User | null> => {
     });
 
     return user;
-  } catch (error: any) {
-    if (error.message?.includes("401") || error.message?.includes("403")) {
+  } catch (error: unknown) {
+    if (
+      error instanceof Error &&
+      (error.message.includes("401") || error.message.includes("403"))
+    ) {
       return null;
     }
     throw error;

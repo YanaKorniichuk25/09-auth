@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/store/authStore";
 import { register } from "@/lib/api/clientApi";
+import styles from "./SignUpPage.module.css";
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("");
@@ -21,39 +22,63 @@ export default function SignUpPage() {
       const user = await register({ email, password });
       setUser(user);
       router.push("/sign-in");
-    } catch (err: any) {
-      setError(err.message || "Registration failed");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Registration failed");
+      }
     }
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "50px auto", textAlign: "center" }}>
-      <h2>Sign Up</h2>
-      <form
-        onSubmit={handleSubmit}
-        style={{ display: "flex", flexDirection: "column", gap: 10 }}
-      >
-        <input
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Username"
-        />
-        <input
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-          required
-        />
-        <input
-          value={password}
-          type="password"
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-          required
-        />
-        <button type="submit">Sign up</button>
+    <main className={styles.mainContent}>
+      <form className={styles.form} onSubmit={handleSubmit}>
+        <h2 className={styles.formTitle}>Sign Up</h2>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="username">Username</label>
+          <input
+            id="username"
+            className={styles.input}
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="email">Email</label>
+          <input
+            id="email"
+            className={styles.input}
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            className={styles.input}
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+
+        {error && <p className={styles.error}>{error}</p>}
+
+        <div className={styles.actions}>
+          <button type="submit" className={styles.submitButton}>
+            Sign up
+          </button>
+        </div>
       </form>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-    </div>
+    </main>
   );
 }
