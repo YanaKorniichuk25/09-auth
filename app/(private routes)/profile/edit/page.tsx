@@ -6,123 +6,86 @@ import Image from "next/image";
 import css from "./EditProfilePage.module.css";
 import { getMe, updateMe } from "@/lib/api/clientApi";
 import { User } from "@/types/user";
+import { useAuthStore } from "@/lib/store/authStore";
 
 export default function EditProfilePage() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUserLocal] = useState<User | null>(null);
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { setUser: setGlobalUser } = useAuthStore();
 
   useEffect(() => {
     let mounted = true;
-    async function fetchUser() {
+    (async () => {
       try {
-        const data = await getMe();
+        const u = await getMe();
         if (!mounted) return;
-        setUser(data);
-        setUsername(data?.username ?? "");
+        setUserLocal(u);
+        setUsername(u?.username ?? "");
       } catch {
-        setUser(null);
+        // ignore
       } finally {
         if (mounted) setLoading(false);
       }
-    }
-    fetchUser();
+    })();
     return () => {
       mounted = false;
     };
   }, []);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const handleCancel = () => {
+    router.push("/profile");
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
-    if (!username.trim()) {
-      setError("Username cannot be empty");
-      return;
-    }
-
     setSaving(true);
     try {
-      await updateMe({ username: username.trim() });
-      router.push("/profile");
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError("Failed to update profile");
-      }
-    } finally {
+      const data = await updateMe({ username });
+      if (data) setGlobalUser(data as any); // update global store for consistency
       setSaving(false);
+      router.push("/profile");
+    } catch (err) {
+      setSaving(false);
+      setError((err as Error).message || "Failed to update profile");
     }
-  }
+  };
 
-  function handleCancel() {
-    router.push("/profile");
-  }
-
-  if (loading) {
-    return (
-      <main className={css.mainContent}>
-        <div className={css.profileCard}>
-          <p>Loading...</p>
-        </div>
-      </main>
-    );
-  }
-
-  if (!user) {
-    router.push("/sign-in");
-    return null;
-  }
+  if (loading) return <p>Loading...</p>;
 
   return (
     <main className={css.mainContent}>
-      <div className={css.profileCard}>
-        <h1 className={css.formTitle}>Edit Profile</h1>
+      <div className={css.formCard}>
+        <h1>Edit profile</h1>
+        <form onSubmit={handleSave} className={css.form}>
+          <div className={css.row}>
+            <label>Email</label>
+            <input value={user?.email ?? ""} readOnly />
+          </div>
 
-        <div className={css.avatarWrapper}>
-          <Image
-            src={user.avatar}
-            alt="User Avatar"
-            width={120}
-            height={120}
-            className={css.avatar}
-          />
-        </div>
-
-        <form onSubmit={handleSubmit} className={css.profileInfo}>
-          <div className={css.usernameWrapper}>
-            <label htmlFor="username">Username:</label>
+          <div className={css.row}>
+            <label>Username</label>
             <input
-              id="username"
-              type="text"
-              className={css.input}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
             />
           </div>
 
-          <p>Email: {user.email}</p>
-
-          {error && <p className={css.error}>{error}</p>}
-
           <div className={css.actions}>
-            <button type="submit" className={css.saveButton} disabled={saving}>
-              {saving ? "Saving..." : "Save"}
+            <button type="submit" disabled={saving}>
+              Save
             </button>
-            <button
-              type="button"
-              onClick={handleCancel}
-              className={css.cancelButton}
-              disabled={saving}
-            >
+            <button type="button" onClick={handleCancel} disabled={saving}>
               Cancel
             </button>
           </div>
+
+          {error && <p className={css.error}>{error}</p>}
         </form>
       </div>
     </main>

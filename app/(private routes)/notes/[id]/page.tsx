@@ -1,39 +1,29 @@
-import {
-  QueryClient,
-  HydrationBoundary,
-  dehydrate,
-} from "@tanstack/react-query";
-import { getSingleNote } from "@/lib/api/serverApi";
-import NoteDetailsClient from "./NoteDetails.client";
-import { HOME_PAGE, OG_IMAGE, SITE_NAME } from "@/config/metaData";
 import { Metadata } from "next";
-
-interface NoteDetailsProps {
-  params: { id: string };
-}
+import { getSingleNote } from "@/lib/api/serverApi";
+import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
+import NoteDetailsClient from "./NoteDetails.client";
 
 export async function generateMetadata({
   params,
-}: NoteDetailsProps): Promise<Metadata> {
-  const { id } = params;
-  const note = await getSingleNote(id);
-
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
   return {
-    title: `${SITE_NAME} | ${note.title}`,
-    description: note.content.slice(0, 30),
-    openGraph: {
-      title: `${SITE_NAME} | ${note.title}`,
-      description: note.content.slice(0, 100),
-      url: `${HOME_PAGE}/notes/${id}`,
-      siteName: SITE_NAME,
-      images: [OG_IMAGE],
-      type: "article",
-    },
+    title: `Note ${id}`,
+    description: `Details of note ${id}`,
   };
 }
 
-const NoteDetails = async ({ params }: NoteDetailsProps) => {
-  const { id } = params;
+export default async function NoteDetailsPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
+  // створюємо queryClient прямо тут, без імпорту з lib
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({
@@ -46,6 +36,4 @@ const NoteDetails = async ({ params }: NoteDetailsProps) => {
       <NoteDetailsClient />
     </HydrationBoundary>
   );
-};
-
-export default NoteDetails;
+}

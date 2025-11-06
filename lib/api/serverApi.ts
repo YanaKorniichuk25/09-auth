@@ -1,12 +1,9 @@
-import { apiRequest } from "./api";
+// lib/api/serverApi.ts
+import { apiRequest, api } from "./api";
 import type { Note } from "@/types/note";
 import type { User } from "@/types/user";
 import { cookies } from "next/headers";
-
-export interface NotesResponse {
-  notes: Note[];
-  totalPages: number;
-}
+import type { AxiosResponse } from "axios";
 
 interface FetchNotesParams {
   page: number;
@@ -15,32 +12,50 @@ interface FetchNotesParams {
   tag?: string;
 }
 
-export const fetchNotesServer = async ({
-  page,
-  perPage = 12,
-  search,
-  tag,
-}: FetchNotesParams): Promise<NotesResponse> => {
-  const query = new URLSearchParams({
-    page: String(page),
-    perPage: String(perPage),
-  });
-  if (search) query.append("search", search);
-  if (tag) query.append("tag", tag);
+async function buildCookieHeader() {
+  const cookieStore = await cookies();
+  const entries = cookieStore.getAll().map((c) => `${c.name}=${c.value}`);
+  return entries.join("; ");
+}
 
-  return apiRequest<NotesResponse>(`/notes?${query.toString()}`);
+export const fetchNotes = async (params: FetchNotesParams) => {
+  const cookieHeader = await buildCookieHeader();
+  const q = new URLSearchParams();
+  q.set("page", String(params.page ?? 1));
+  if (params.perPage) q.set("perPage", String(params.perPage));
+  if (params.search) q.set("search", params.search);
+  if (params.tag) q.set("tag", params.tag);
+  return apiRequest(`/notes?${q.toString()}`, {
+    method: "GET",
+    headers: { Cookie: cookieHeader },
+  });
 };
 
 export const getSingleNote = async (id: string): Promise<Note> => {
-  return apiRequest<Note>(`/notes/${id}`);
+  const cookieHeader = await buildCookieHeader();
+  return apiRequest<Note>(`/notes/${id}`, {
+    method: "GET",
+    headers: { Cookie: cookieHeader },
+  });
 };
 
 export const getMe = async (): Promise<User | null> => {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
   if (!accessToken) return null;
-
+  const cookieHeader = await buildCookieHeader();
   return apiRequest<User>("/users/me", {
-    headers: { Authorization: `Bearer ${accessToken}` },
+    method: "GET",
+    headers: { Cookie: cookieHeader },
+  });
+};
+
+export const checkSession = async (): Promise<AxiosResponse<any>> => {
+  const cookieHeader = await buildCookieHeader();
+  // return full axios response (not only .data) so middleware can inspect status/headers
+  return api.request({
+    url: "/auth/session",
+    method: "GET",
+    headers: { Cookie: cookieHeader },
   });
 };

@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import css from "./Header.module.css";
-import { AuthNavigation } from "@/components/AuthNavigation/AuthNavigation";
+import AuthNavigation from "@/components/AuthNavigation/AuthNavigation";
 
 const Header = () => (
   <header className={css.header}>

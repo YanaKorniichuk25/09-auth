@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { cookies } from "next/headers";
+import { checkSession } from "./lib/api/serverApi";
 
-export function middleware(request: NextRequest) {
-  const token = request.cookies.get("auth_token");
+export async function middleware(request: NextRequest) {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("accessToken")?.value;
+  const refreshToken = cookieStore.get("refreshToken")?.value;
   const { pathname } = request.nextUrl;
 
   const isAuthPage =
@@ -10,12 +14,24 @@ export function middleware(request: NextRequest) {
   const isPrivatePage =
     pathname.startsWith("/profile") || pathname.startsWith("/notes");
 
-  if (!token && isPrivatePage) {
+  // If accessToken missing but refreshToken exists — attempt session refresh
+  if (!accessToken && refreshToken) {
+    try {
+      await checkSession();
+    } catch (e) {
+      // ignore: if refresh fails, we'll redirect later
+    }
+  }
+
+  const hasAccess = Boolean((await cookies()).get("accessToken")?.value);
+
+  if (!hasAccess && isPrivatePage) {
     return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 
-  if (token && isAuthPage) {
-    return NextResponse.redirect(new URL("/profile", request.url));
+  // Authenticated users visiting auth pages -> redirect to home (not /profile)
+  if (hasAccess && isAuthPage) {
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   return NextResponse.next();

@@ -1,72 +1,55 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/lib/store/authStore";
+import { FormEvent, useState } from "react";
 import { login } from "@/lib/api/clientApi";
-import styles from "./SignInPage.module.css";
+import { useAuthStore } from "@/lib/store/authStore";
+import { useRouter } from "next/navigation";
 
 export default function SignInPage() {
+  const router = useRouter();
+  const { setUser } = useAuthStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const router = useRouter();
-  const { setUser } = useAuthStore();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
-
     try {
       const user = await login({ email, password });
       setUser(user);
-      router.push("/profile");
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Login failed");
-      }
+      router.push("/profile"); // redirect to profile after login
+    } catch {
+      setError("Невірний email або пароль.");
     }
   };
 
   return (
-    <main className={styles.mainContent}>
-      <form className={styles.form} onSubmit={handleSubmit}>
-        <h2 className={styles.formTitle}>Sign In</h2>
-
-        <div className={styles.formGroup}>
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            className={styles.input}
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className={styles.formGroup}>
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            className={styles.input}
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-
-        {error && <p className={styles.error}>{error}</p>}
-
-        <div className={styles.actions}>
-          <button type="submit" className={styles.submitButton}>
-            Sign in
-          </button>
-        </div>
+    <main style={{ padding: 24 }}>
+      <h1>Sign in</h1>
+      <form
+        onSubmit={handleSubmit}
+        style={{ display: "grid", gap: 12, width: 360 }}
+      >
+        <input
+          name="email"
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          name="password"
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit">Sign in</button>
       </form>
+      {error && <p style={{ color: "red" }}>{error}</p>}
     </main>
   );
 }
