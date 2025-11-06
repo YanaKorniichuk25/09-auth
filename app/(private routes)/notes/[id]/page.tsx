@@ -35,6 +35,7 @@ export async function generateMetadata({
 const NoteDetails = async ({ params }: NoteDetailsProps) => {
   const { id } = params;
   const queryClient = new QueryClient();
+
   await queryClient.prefetchQuery({
     queryKey: ["note", id],
     queryFn: () => getSingleNote(id),
