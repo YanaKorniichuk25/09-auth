@@ -21,10 +21,9 @@ export default function EditProfilePage() {
       try {
         const data = await getMe();
         if (!mounted) return;
-        setUser(data || null);
+        setUser(data);
         setUsername(data?.username ?? "");
-      } catch (err: any) {
-        // Якщо сесії немає — getMe має кинути або повернути null.
+      } catch {
         setUser(null);
       } finally {
         if (mounted) setLoading(false);
@@ -36,7 +35,7 @@ export default function EditProfilePage() {
     };
   }, []);
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
 
@@ -48,10 +47,13 @@ export default function EditProfilePage() {
     setSaving(true);
     try {
       await updateMe({ username: username.trim() });
-      // Після успіху — редірект на /profile
       router.push("/profile");
-    } catch (err: any) {
-      setError(err?.message ?? "Failed to update profile");
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("Failed to update profile");
+      }
     } finally {
       setSaving(false);
     }
@@ -72,7 +74,6 @@ export default function EditProfilePage() {
   }
 
   if (!user) {
-    // Якщо користувача немає (не авторизований) — перенаправимо на логін (в layout/middleware має бути додатковий захист)
     router.push("/sign-in");
     return null;
   }

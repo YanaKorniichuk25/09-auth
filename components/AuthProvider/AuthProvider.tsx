@@ -23,7 +23,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         setIsLoading(true);
 
-        // 🟢 Якщо користувач уже є в сторі — не перевіряємо повторно
         if (isAuthenticated && user) {
           setIsLoading(false);
           return;
@@ -35,7 +34,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const data = await res.json();
 
         if (res.ok && data.success) {
-          // якщо бекенд не повертає користувача — створюємо заглушку
           const validUser: User = data.user || {
             username: "User",
             email: "placeholder@example.com",

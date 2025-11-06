@@ -1,5 +1,7 @@
 import { apiRequest } from "./api";
 import type { Note } from "@/types/note";
+import type { User } from "@/types/user";
+import { cookies } from "next/headers";
 
 export interface NotesResponse {
   notes: Note[];
@@ -27,4 +29,28 @@ export const fetchNotesServer = async ({
   if (tag) query.append("tag", tag);
 
   return apiRequest<NotesResponse>(`/notes?${query.toString()}`);
+};
+
+export const getMe = async (): Promise<User | null> => {
+  try {
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get("accessToken")?.value;
+
+    if (!accessToken) {
+      return null;
+    }
+
+    const user = await apiRequest<User>("/users/me", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    return user;
+  } catch (error: any) {
+    if (error.message?.includes("401") || error.message?.includes("403")) {
+      return null;
+    }
+    throw error;
+  }
 };

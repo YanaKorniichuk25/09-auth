@@ -1,10 +1,10 @@
-import axios, { AxiosRequestConfig } from "axios";
+import axios, { AxiosRequestConfig, AxiosError } from "axios";
 
 const baseURL = process.env.NEXT_PUBLIC_API_URL + "/api";
 
 export const api = axios.create({
   baseURL,
-  withCredentials: true, // дозволяє працювати з куками
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
@@ -20,8 +20,8 @@ export async function apiRequest<T>(
       ...options,
     });
     return response.data;
-  } catch (err: any) {
-    // Axios кидає помилку у response.data або message
+  } catch (error) {
+    const err = error as AxiosError<{ message?: string }>;
     const message =
       err.response?.data?.message || err.message || "API request failed";
     throw new Error(message);

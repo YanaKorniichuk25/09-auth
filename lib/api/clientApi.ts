@@ -2,10 +2,6 @@ import { apiRequest } from "./api";
 import type { Note } from "@/types/note";
 import type { User } from "@/types/user";
 
-// ==========================
-// 📒 NOTE API
-// ==========================
-
 export interface NotesResponse {
   notes: Note[];
   totalPages: number;
@@ -49,10 +45,6 @@ export const createNote = async (note: {
   });
 };
 
-// ==========================
-// 👤 AUTH API
-// ==========================
-
 export const register = async (credentials: {
   email: string;
   password: string;
@@ -81,22 +73,32 @@ export const checkSession = async (): Promise<User | null> => {
   try {
     const data = await apiRequest<User>("/auth/session");
     return data;
-  } catch (error: any) {
-    if (error.response?.status === 401) return null;
+  } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "message" in error &&
+      (error as Error).message.includes("401")
+    ) {
+      return null;
+    }
     throw error;
   }
 };
-
-// ==========================
-// 🧑 USER API
-// ==========================
 
 export const getMe = async (): Promise<User | null> => {
   try {
     const data = await apiRequest<User>("/users/me");
     return data;
-  } catch (error: any) {
-    if (error.response?.status === 401) return null;
+  } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "message" in error &&
+      (error as Error).message.includes("401")
+    ) {
+      return null;
+    }
     throw error;
   }
 };

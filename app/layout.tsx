@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Inter } from "next/font/google";
-import { AuthProvider } from "@/components/AuthProvider/AuthProvider"; // ← іменований
-import Header from "@/components/Header/Header"; // ← default export
-import Footer from "@/components/Footer/Footer"; // ← default export
-import { TanStackProvider } from "@/components/TanStackProvider/TanStackProvider"; // ← правильно
+import { AuthProvider } from "@/components/AuthProvider/AuthProvider";
+import Header from "@/components/Header/Header";
+import Footer from "@/components/Footer/Footer";
+import { TanStackProvider } from "@/components/TanStackProvider/TanStackProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 

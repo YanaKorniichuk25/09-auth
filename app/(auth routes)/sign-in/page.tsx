@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/store/authStore";
-import type { User } from "@/types/user";
+import { login } from "@/lib/api/clientApi";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -16,26 +16,12 @@ export default function SignInPage() {
     e.preventDefault();
     setError("");
 
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ email, password }),
-    });
-
-    const data = await res.json();
-
-    if (res.ok && data.user) {
-      const user: User = {
-        username: data.user.username || "User",
-        email: data.user.email,
-        avatar: data.user.avatar || "/default-avatar.png",
-      };
-
+    try {
+      const user = await login({ email, password });
       setUser(user);
       router.push("/profile");
-    } else {
-      setError(data.message || "Login failed");
+    } catch (err: any) {
+      setError(err.message || "Login failed");
     }
   };
 
