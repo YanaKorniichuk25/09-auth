@@ -1,11 +1,12 @@
 "use client";
 
 import css from "./NoteForm.module.css";
-import { createNote } from "@/lib/api";
+import { createNote } from "@/lib/api/clientApi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { tagsList } from "@/types/note";
 import { useRouter } from "next/navigation";
 import { useNoteStore } from "@/lib/store/noteStore";
+import { toast } from "react-hot-toast";
 
 export type NoteFormValues = {
   title: string;
@@ -36,7 +37,11 @@ export default function NoteForm() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
       clearDraft();
+      toast.success("Note created successfully!");
       router.push("/notes/filter/All");
+    },
+    onError: (error: any) => {
+      toast.error(error?.message || "Failed to create note");
     },
   });
 

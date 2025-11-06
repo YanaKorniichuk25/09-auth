@@ -1,8 +1,8 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
-import { getSingleNote } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
+import { getSingleNote } from "@/lib/api/clientApi";
 import { Note } from "@/types/note";
 import Modal from "@/components/Modal/Modal";
 import css from "./NoteDetails.module.css";
@@ -10,12 +10,12 @@ import css from "./NoteDetails.module.css";
 export default function NoteDetailsClient() {
   const { id } = useParams();
   const router = useRouter();
-
   const noteId = Array.isArray(id) ? id[0] : id;
 
   const {
     data: note,
     isLoading,
+    isError,
     error,
   } = useQuery<Note>({
     queryKey: ["notes", noteId],
@@ -26,7 +26,7 @@ export default function NoteDetailsClient() {
   const handleClose = () => router.back();
 
   if (isLoading) return <p>Loading, please wait...</p>;
-  if (error || !note) return <p>Something went wrong.</p>;
+  if (isError || !note) return <p>Something went wrong: {error?.message}</p>;
 
   return (
     <div className={css.container}>

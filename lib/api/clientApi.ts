@@ -30,6 +30,10 @@ export const fetchNotes = async ({
   return apiRequest<NotesResponse>(`/notes?${query.toString()}`);
 };
 
+export const getSingleNote = (id: string): Promise<Note> => {
+  return apiRequest<Note>(`/notes/${id}`);
+};
+
 export const deleteNote = async (id: string): Promise<void> => {
   await apiRequest<void>(`/notes/${id}`, { method: "DELETE" });
 };
@@ -39,10 +43,7 @@ export const createNote = async (note: {
   content: string;
   tag: string;
 }): Promise<Note> => {
-  return apiRequest<Note>("/notes", {
-    method: "POST",
-    data: note,
-  });
+  return apiRequest<Note>("/notes", { method: "POST", data: note });
 };
 
 export const register = async (credentials: {
@@ -59,10 +60,7 @@ export const login = async (credentials: {
   email: string;
   password: string;
 }): Promise<User> => {
-  return apiRequest<User>("/auth/login", {
-    method: "POST",
-    data: credentials,
-  });
+  return apiRequest<User>("/auth/login", { method: "POST", data: credentials });
 };
 
 export const logout = async (): Promise<void> => {
@@ -71,34 +69,18 @@ export const logout = async (): Promise<void> => {
 
 export const checkSession = async (): Promise<User | null> => {
   try {
-    const data = await apiRequest<User>("/auth/session");
-    return data;
-  } catch (error) {
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "message" in error &&
-      (error as Error).message.includes("401")
-    ) {
-      return null;
-    }
+    return await apiRequest<User>("/auth/session");
+  } catch (error: any) {
+    if (error.message.includes("401")) return null;
     throw error;
   }
 };
 
 export const getMe = async (): Promise<User | null> => {
   try {
-    const data = await apiRequest<User>("/users/me");
-    return data;
-  } catch (error) {
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "message" in error &&
-      (error as Error).message.includes("401")
-    ) {
-      return null;
-    }
+    return await apiRequest<User>("/users/me");
+  } catch (error: any) {
+    if (error.message.includes("401")) return null;
     throw error;
   }
 };
@@ -107,8 +89,5 @@ export const updateMe = async (data: {
   username?: string;
   avatar?: string;
 }): Promise<User> => {
-  return apiRequest<User>("/users/me", {
-    method: "PATCH",
-    data,
-  });
+  return apiRequest<User>("/users/me", { method: "PATCH", data });
 };

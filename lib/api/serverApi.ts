@@ -31,29 +31,22 @@ export const fetchNotesServer = async ({
   return apiRequest<NotesResponse>(`/notes?${query.toString()}`);
 };
 
+export const getSingleNote = async (id: string): Promise<Note> => {
+  return apiRequest<Note>(`/notes/${id}`);
+};
+
 export const getMe = async (): Promise<User | null> => {
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("accessToken")?.value;
+    if (!accessToken) return null;
 
-    if (!accessToken) {
-      return null;
-    }
-
-    const user = await apiRequest<User>("/users/me", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
+    return apiRequest<User>("/users/me", {
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
-
-    return user;
-  } catch (error: unknown) {
-    if (
-      error instanceof Error &&
-      (error.message.includes("401") || error.message.includes("403"))
-    ) {
+  } catch (error: any) {
+    if (error.message.includes("401") || error.message.includes("403"))
       return null;
-    }
     throw error;
   }
 };
