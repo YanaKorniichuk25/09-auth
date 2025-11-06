@@ -40,9 +40,6 @@ export default function NoteForm() {
       toast.success("Note created successfully!");
       router.push("/notes/filter/All");
     },
-    onError: (error: any) => {
-      toast.error(error?.message || "Failed to create note");
-    },
   });
 
   const handleSubmit = (formData: FormData) => {

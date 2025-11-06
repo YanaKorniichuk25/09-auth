@@ -34,11 +34,11 @@ export const getSingleNote = (id: string): Promise<Note> => {
   return apiRequest<Note>(`/notes/${id}`);
 };
 
-export const deleteNote = async (id: string): Promise<void> => {
-  await apiRequest<void>(`/notes/${id}`, { method: "DELETE" });
+export const deleteNote = (id: string): Promise<void> => {
+  return apiRequest<void>(`/notes/${id}`, { method: "DELETE" });
 };
 
-export const createNote = async (note: {
+export const createNote = (note: {
   title: string;
   content: string;
   tag: string;
@@ -46,7 +46,7 @@ export const createNote = async (note: {
   return apiRequest<Note>("/notes", { method: "POST", data: note });
 };
 
-export const register = async (credentials: {
+export const register = (credentials: {
   email: string;
   password: string;
 }): Promise<User> => {
@@ -56,36 +56,26 @@ export const register = async (credentials: {
   });
 };
 
-export const login = async (credentials: {
+export const login = (credentials: {
   email: string;
   password: string;
 }): Promise<User> => {
   return apiRequest<User>("/auth/login", { method: "POST", data: credentials });
 };
 
-export const logout = async (): Promise<void> => {
-  await apiRequest<void>("/auth/logout", { method: "POST" });
+export const logout = (): Promise<void> => {
+  return apiRequest<void>("/auth/logout", { method: "POST" });
 };
 
-export const checkSession = async (): Promise<User | null> => {
-  try {
-    return await apiRequest<User>("/auth/session");
-  } catch (error: any) {
-    if (error.message.includes("401")) return null;
-    throw error;
-  }
+export const checkSession = (): Promise<User | null> => {
+  return apiRequest<User>("/auth/session");
 };
 
-export const getMe = async (): Promise<User | null> => {
-  try {
-    return await apiRequest<User>("/users/me");
-  } catch (error: any) {
-    if (error.message.includes("401")) return null;
-    throw error;
-  }
+export const getMe = (): Promise<User | null> => {
+  return apiRequest<User>("/users/me");
 };
 
-export const updateMe = async (data: {
+export const updateMe = (data: {
   username?: string;
   avatar?: string;
 }): Promise<User> => {

@@ -36,17 +36,11 @@ export const getSingleNote = async (id: string): Promise<Note> => {
 };
 
 export const getMe = async (): Promise<User | null> => {
-  try {
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get("accessToken")?.value;
-    if (!accessToken) return null;
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("accessToken")?.value;
+  if (!accessToken) return null;
 
-    return apiRequest<User>("/users/me", {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-  } catch (error: any) {
-    if (error.message.includes("401") || error.message.includes("403"))
-      return null;
-    throw error;
-  }
+  return apiRequest<User>("/users/me", {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
 };
