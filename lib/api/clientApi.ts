@@ -1,4 +1,3 @@
-// lib/api/clientApi.ts
 import { apiRequest } from "./api";
 import type { Note } from "@/types/note";
 import type { User } from "@/types/user";
@@ -15,6 +14,14 @@ interface FetchNotesParams {
   tag?: string;
 }
 
+interface ApiMessage {
+  message: string;
+}
+
+interface SessionStatus {
+  success: boolean;
+}
+
 // Auth
 export const register = (params: {
   email: string;
@@ -29,12 +36,11 @@ export const login = (params: {
 }): Promise<User> =>
   apiRequest<User>("/auth/login", { method: "POST", data: params });
 
-export const logout = (): Promise<any> =>
-  // backend may return session info or just message — keep flexible
-  apiRequest<any>("/auth/logout", { method: "POST" });
+export const logout = (): Promise<ApiMessage> =>
+  apiRequest<ApiMessage>("/auth/logout", { method: "POST" });
 
-export const checkSession = (): Promise<any> =>
-  apiRequest<any>("/auth/session", { method: "GET" });
+export const checkSession = (): Promise<SessionStatus> =>
+  apiRequest<SessionStatus>("/auth/session", { method: "GET" });
 
 // User
 export const getMe = (): Promise<User> =>

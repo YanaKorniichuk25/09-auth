@@ -9,9 +9,10 @@ export default function AuthRoutesLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+
   useEffect(() => {
     router.refresh();
-  }, []);
+  }, [router]);
 
-  return <section style={{ padding: "2rem 0" }}>{children}</section>;
+  return <section>{children}</section>;
 }

@@ -1,4 +1,3 @@
-// lib/api/serverApi.ts
 import { apiRequest, api } from "./api";
 import type { Note } from "@/types/note";
 import type { User } from "@/types/user";
@@ -50,10 +49,12 @@ export const getMe = async (): Promise<User | null> => {
   });
 };
 
-export const checkSession = async (): Promise<AxiosResponse<any>> => {
+export const checkSession = async (): Promise<
+  AxiosResponse<{ success: boolean }>
+> => {
   const cookieHeader = await buildCookieHeader();
-  // return full axios response (not only .data) so middleware can inspect status/headers
-  return api.request({
+
+  return api.request<{ success: boolean }>({
     url: "/auth/session",
     method: "GET",
     headers: { Cookie: cookieHeader },

@@ -15,9 +15,7 @@ export default function AuthNavigation() {
         method: "POST",
         credentials: "include",
       });
-    } catch {
-      // ignore network errors
-    }
+    } catch {}
     clearIsAuthenticated();
     router.push("/");
   };

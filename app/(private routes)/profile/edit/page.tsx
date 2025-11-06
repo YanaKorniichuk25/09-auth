@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import css from "./EditProfilePage.module.css";
 import { getMe, updateMe } from "@/lib/api/clientApi";
 import { User } from "@/types/user";
@@ -26,7 +25,6 @@ export default function EditProfilePage() {
         setUserLocal(u);
         setUsername(u?.username ?? "");
       } catch {
-        // ignore
       } finally {
         if (mounted) setLoading(false);
       }
@@ -46,7 +44,7 @@ export default function EditProfilePage() {
     setSaving(true);
     try {
       const data = await updateMe({ username });
-      if (data) setGlobalUser(data as any); // update global store for consistency
+      if (data) setGlobalUser(data);
       setSaving(false);
       router.push("/profile");
     } catch (err) {

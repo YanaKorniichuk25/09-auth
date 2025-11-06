@@ -22,8 +22,6 @@ export default async function NoteDetailsPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-
-  // створюємо queryClient прямо тут, без імпорту з lib
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({
