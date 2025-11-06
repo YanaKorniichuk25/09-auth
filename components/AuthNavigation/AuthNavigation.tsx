@@ -21,31 +21,38 @@ export default function AuthNavigation() {
   };
 
   return (
-    <nav className={styles.root}>
-      <ul className={styles.list}>
+    <nav>
+      <ul>
         {!isAuthenticated && (
           <>
-            <li>
-              <Link href="/sign-in">Sign in</Link>
+            <li className={styles.navigationItem}>
+              <Link href="/sign-in" className={styles.navigationLink}>
+                Sign in
+              </Link>
             </li>
-            <li>
-              <Link href="/sign-up">Sign up</Link>
+            <li className={styles.navigationItem}>
+              <Link href="/sign-up" className={styles.navigationLink}>
+                Sign up
+              </Link>
             </li>
           </>
         )}
 
         {isAuthenticated && (
           <>
-            <li className={styles.user}>
-              {user ? user.username || user.email : null}
+            {user && (
+              <li className={styles.navigationItem}>
+                <span className={styles.userEmail}>
+                  {user.username || user.email}
+                </span>
+              </li>
+            )}
+            <li className={styles.navigationItem}>
+              <Link href="/profile" className={styles.navigationLink}>
+                Profile
+              </Link>
             </li>
-            <li>
-              <Link href="/profile">Profile</Link>
-            </li>
-            <li>
-              <Link href="/notes">Notes</Link>
-            </li>
-            <li>
+            <li className={styles.navigationItem}>
               <button onClick={handleLogout} className={styles.logoutButton}>
                 Logout
               </button>

@@ -36,20 +36,6 @@ export default function SignUpPage() {
         <h1 className={styles.formTitle}>Sign up</h1>
 
         <div className={styles.formGroup}>
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            className={styles.input}
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className={styles.formGroup}>
           <label htmlFor="username">Username</label>
           <input
             id="username"
@@ -59,6 +45,20 @@ export default function SignUpPage() {
             placeholder="Choose a username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="email">Email</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            className={styles.input}
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
