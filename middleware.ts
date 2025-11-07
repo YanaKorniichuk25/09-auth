@@ -14,10 +14,28 @@ export async function middleware(request: NextRequest) {
   const isPrivatePage =
     pathname.startsWith("/profile") || pathname.startsWith("/notes");
 
+  // ✅ const, бо не перевизначається
+  const response = NextResponse.next();
+
+  // Якщо accessToken немає, але refreshToken є — пробуємо оновити сесію
   if (!accessToken && refreshToken) {
     try {
-      await checkSession();
-    } catch {}
+      const res = await checkSession();
+
+      // ✅ axios: кукі в res.headers["set-cookie"]
+      const setCookieHeader = res?.headers?.["set-cookie"];
+      if (setCookieHeader) {
+        const cookieArray = Array.isArray(setCookieHeader)
+          ? setCookieHeader
+          : [setCookieHeader];
+
+        for (const cookieStr of cookieArray) {
+          response.headers.append("set-cookie", cookieStr);
+        }
+      }
+    } catch (e) {
+      console.error("Session refresh failed", e);
+    }
   }
 
   const hasAccess = Boolean((await cookies()).get("accessToken")?.value);
@@ -30,7 +48,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
