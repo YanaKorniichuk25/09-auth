@@ -14,13 +14,10 @@ export async function middleware(request: NextRequest) {
   const isPrivatePage =
     pathname.startsWith("/profile") || pathname.startsWith("/notes");
 
-  // If accessToken missing but refreshToken exists — attempt session refresh
   if (!accessToken && refreshToken) {
     try {
       await checkSession();
-    } catch (e) {
-      // ignore: if refresh fails, we'll redirect later
-    }
+    } catch {}
   }
 
   const hasAccess = Boolean((await cookies()).get("accessToken")?.value);
@@ -29,7 +26,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 
-  // Authenticated users visiting auth pages -> redirect to home (not /profile)
   if (hasAccess && isAuthPage) {
     return NextResponse.redirect(new URL("/", request.url));
   }

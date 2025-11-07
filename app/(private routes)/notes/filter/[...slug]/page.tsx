@@ -1,40 +1,42 @@
 import { Metadata } from "next";
-import { getSingleNote } from "@/lib/api/serverApi";
+import { fetchNotes } from "@/lib/api/serverApi";
 import {
   HydrationBoundary,
   dehydrate,
   QueryClient,
 } from "@tanstack/react-query";
-import NoteDetailsClient from "./Notes.client";
+import NotesClient from "./Notes.client";
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string[] }>;
 }): Promise<Metadata> {
-  const { id } = await params;
+  const { slug } = await params;
+  const tag = slug[0];
   return {
-    title: `Note ${id}`,
-    description: `Details of note ${id}`,
+    title: `Notes filtered by tag: ${tag}`,
+    description: `List of notes filtered by tag ${tag}`,
   };
 }
 
-export default async function NoteDetailsPage({
+export default async function NotesFilterPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string[] }>;
 }) {
-  const { id } = await params;
+  const { slug } = await params;
+  const tag = slug[0];
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({
-    queryKey: ["note", id],
-    queryFn: () => getSingleNote(id),
+    queryKey: ["notes", { tag }],
+    queryFn: () => fetchNotes({ page: 1, perPage: 10, tag }),
   });
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <NoteDetailsClient />
+      <NotesClient />
     </HydrationBoundary>
   );
 }

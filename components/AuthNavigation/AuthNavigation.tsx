@@ -17,7 +17,7 @@ export default function AuthNavigation() {
       });
     } catch {}
     clearIsAuthenticated();
-    router.push("/");
+    router.push("/sign-in");
   };
 
   return (
